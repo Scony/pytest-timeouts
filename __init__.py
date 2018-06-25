@@ -8,9 +8,19 @@ import pytest
 def pytest_addoption(parser):
     group = parser.getgroup('timeouts')
     group.addoption(
+        '--setup-timeout',
+        type=float,
+        help='test case setup timeout in seconds',
+    )
+    group.addoption(
         '--execution-timeout',
         type=float,
         help='test case call (execution) timeout in seconds',
+    )
+    group.addoption(
+        '--teardown-timeout',
+        type=float,
+        help='test case teardown timeout in seconds',
     )
 
 
@@ -22,9 +32,30 @@ def pytest_configure(config):
 
 class TimeoutsPlugin(object):
     def __init__(self, config):
-        self.call_timeout = config.getvalue('execution_timeout')
-        self.call_timeout = 0.0 if self.call_timeout is None else self.call_timeout
-        self.call_timeout = 0.0 if self.call_timeout < 0.0 else self.call_timeout
+        self.setup_timeout = self.fetch_timeout_value('setup_timeout', config)
+        self.call_timeout = self.fetch_timeout_value('execution_timeout', config)
+        self.teardown_timeout = self.fetch_timeout_value('teardown_timeout', config)
+
+    @staticmethod
+    def fetch_timeout_value(timeout_name, config):
+        timeout = config.getvalue(timeout_name)
+        timeout = 0.0 if timeout is None else timeout
+        timeout = 0.0 if timeout < 0.0 else timeout
+        return timeout
+
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_report_header(self, config):
+        return ['setup timeout: %ss, execution timeout: %ss, teardown timeout: %ss' % (
+            self.setup_timeout,
+            self.call_timeout,
+            self.teardown_timeout,
+        )]
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_setup(self, item):
+        self.setup_timer(self.setup_timeout)
+        yield
+        self.cancel_timer()
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
@@ -32,9 +63,16 @@ class TimeoutsPlugin(object):
         yield
         self.cancel_timer()
 
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_teardown(self, item):
+        self.setup_timer(self.teardown_timeout)
+        yield
+        self.cancel_timer()
+
     @staticmethod
     def setup_timer(timeout):
-        signal.signal(signal.SIGALRM, functools.partial(TimeoutsPlugin.timeout_handler, timeout))
+        handler = functools.partial(TimeoutsPlugin.timeout_handler, timeout)
+        signal.signal(signal.SIGALRM, handler)
         signal.setitimer(signal.ITIMER_REAL, timeout)
 
     @staticmethod
