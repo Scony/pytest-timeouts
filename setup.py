@@ -7,6 +7,7 @@ setup(
     author='Pawel Lampe',
     author_email='pawel.lampe@gmail.com',
     url='https://github.com/Scony/pytest-timeouts',
+    license='MIT',
     install_requires=[
         'pytest',
     ],
