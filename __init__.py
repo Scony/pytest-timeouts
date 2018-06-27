@@ -15,7 +15,7 @@ def pytest_addoption(parser):
     group.addoption(
         '--execution-timeout',
         type=float,
-        help='test case call (execution) timeout in seconds',
+        help='test case execution timeout in seconds',
     )
     group.addoption(
         '--teardown-timeout',
@@ -50,6 +50,10 @@ class TimeoutsPlugin(object):
             self.call_timeout,
             self.teardown_timeout,
         )]
+
+    @pytest.hookimpl
+    def pytest_enter_pdb(self):
+        self.cancel_timer()
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
