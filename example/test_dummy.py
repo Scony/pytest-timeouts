@@ -1,8 +1,7 @@
-import time
-
 import pytest
 
 pytest_plugins = 'pytester'
+
 
 def test_fixture_timeout_arg(testdir):
     testdir.makepyfile("""
