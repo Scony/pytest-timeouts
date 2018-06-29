@@ -1,4 +1,4 @@
-# pytest-timeouts
+# pytest-timeouts [![Build Status](https://travis-ci.org/Scony/pytest-timeouts.svg?branch=master)](https://travis-ci.org/Scony/pytest-timeouts)
 
 Linux-only Pytest plugin to control durations of various test case execution phases.
 
