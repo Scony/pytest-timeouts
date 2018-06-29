@@ -8,7 +8,7 @@ This plugin has been designed for specific use cases which are out of the scope 
 
 ## Features
 
-* `setup`, `execution` and `teardown` phase timeouts controllable by opts: `--setup-timeout`, `--execution-timeout` and `--teardown-timeout`
+* `setup`, `execution` and `teardown` phase timeouts controllable by opts: `--setup-timeout`, `--execution-timeout` and `--teardown-timeout` or ini: `setup_timeout`, `execution-timeout` and `teardown-timeout``
 * timeout disabled when debugging with PDB
 
 ## Usage
@@ -17,9 +17,15 @@ This plugin has been designed for specific use cases which are out of the scope 
 pytest --setup-timeout 2.5 --execution-timeout 2.01  --teardown-timeout 0
 ```
 
+```
+# pytest.ini
+[pytest]
+setup_timeout = 2.5
+execution-timeout = 2.01
+teardown-timeout = 0
+```
 ## TODO
 
-* `setup`, `execution` and `teardown` phase timeouts controllable by ini settings
 * `execution` phase timeout controllable by markers
 * `setup` and `teardown` phase timeouts controllable by markers(?) or so
 * fixture for setting scope timeouts

@@ -15,6 +15,22 @@ def test_arg_parse(testdir):
     ])
 
 
+def test_ini_parse(testdir):
+    testdir.makepyfile("""
+        def test_dummy(): pass
+    """)
+    testdir.makeini("""
+        [pytest]
+        setup_timeout = 1.5
+        execution_timeout = 2.5
+        teardown_timeout = 3.5
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        "setup timeout: 1.5s, execution timeout: 2.5s, teardown timeout: 3.5s"
+    ])
+
+
 def test_setup_timeout(testdir):
     testdir.makepyfile("""
         import pytest
