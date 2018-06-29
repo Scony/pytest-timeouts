@@ -1,5 +1,7 @@
-import signal
+from __future__ import absolute_import
+
 import functools
+import signal
 
 import pytest
 
@@ -33,8 +35,10 @@ def pytest_configure(config):
 class TimeoutsPlugin(object):
     def __init__(self, config):
         self.setup_timeout = self.fetch_timeout_value('setup_timeout', config)
-        self.call_timeout = self.fetch_timeout_value('execution_timeout', config)
-        self.teardown_timeout = self.fetch_timeout_value('teardown_timeout', config)
+        self.call_timeout = self.fetch_timeout_value(
+            'execution_timeout', config)
+        self.teardown_timeout = self.fetch_timeout_value(
+            'teardown_timeout', config)
 
     @staticmethod
     def fetch_timeout_value(timeout_name, config):
@@ -45,11 +49,12 @@ class TimeoutsPlugin(object):
 
     @pytest.hookimpl(tryfirst=True)
     def pytest_report_header(self, config):
-        return ['setup timeout: %ss, execution timeout: %ss, teardown timeout: %ss' % (
-            self.setup_timeout,
-            self.call_timeout,
-            self.teardown_timeout,
-        )]
+        timeout_prints = [
+            'setup timeout: %ss' % self.setup_timeout,
+            'execution timeout: %ss' % self.call_timeout,
+            'teardown timeout: %ss' % self.teardown_timeout,
+        ]
+        return [', '.join(timeout_prints)]
 
     @pytest.hookimpl
     def pytest_enter_pdb(self):
