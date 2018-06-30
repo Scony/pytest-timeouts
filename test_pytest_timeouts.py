@@ -39,16 +39,16 @@ def test_setup_timeout(testdir):
 
         @pytest.fixture(scope='function')
         def fx():
-            time.sleep(2)
+            time.sleep(1)
             yield
 
 
         def test_dummy(fx):
             pass
     """)
-    result = testdir.runpytest('--setup-timeout=1.5')
+    result = testdir.runpytest('--setup-timeout=0.5')
     result.stdout.fnmatch_lines([
-        '*Failed: Timeout >1.5s*'
+        '*Failed: Timeout >0.5s*'
     ])
 
 
@@ -59,11 +59,11 @@ def test_execution_timeout(testdir):
 
 
         def test_dummy():
-            time.sleep(2)
+            time.sleep(1)
     """)
-    result = testdir.runpytest('--execution-timeout=1.5')
+    result = testdir.runpytest('--execution-timeout=0.4')
     result.stdout.fnmatch_lines([
-        '*Failed: Timeout >1.5s*'
+        '*Failed: Timeout >0.4s*'
     ])
 
 
@@ -75,15 +75,15 @@ def test_teardown_timeout(testdir):
         @pytest.fixture(scope='function')
         def fx():
             yield
-            time.sleep(2)
+            time.sleep(1)
 
 
         def test_dummy(fx):
             pass
     """)
-    result = testdir.runpytest('--teardown-timeout=1.5')
+    result = testdir.runpytest('--teardown-timeout=0.3')
     result.stdout.fnmatch_lines([
-        '*Failed: Timeout >1.5s*'
+        '*Failed: Timeout >0.3s*'
     ])
 
 
@@ -92,11 +92,11 @@ def test_execucution_marker_timeout(testdir):
         import pytest
         import time
 
-        @pytest.mark.execution_timeout(0.5)
+        @pytest.mark.execution_timeout(0.2)
         def test_dummy():
             time.sleep(1)
     """)
     result = testdir.runpytest()
     result.stdout.fnmatch_lines([
-        '*Failed: Timeout >0.5s*'
+        '*Failed: Timeout >0.2s*'
     ])
