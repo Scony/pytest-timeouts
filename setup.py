@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pytest-timeouts',
-    version='0.1.0',
+    version='1.0.0',
     description='Linux-only Pytest plugin to control durations of various test case execution phases',
     author='Pawel Lampe',
     author_email='pawel.lampe@gmail.com',

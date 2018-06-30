@@ -5,7 +5,7 @@ Linux-only Pytest plugin to control durations of various test case execution pha
 ## About
 
 This plugin has been designed for specific use cases which are out of the scope of famous `pytest-timeout` plugin.
-Plugin use signal SIGALRM to break test.
+It uses a `SIGALRM` signal to schedule a timer which breaks the test case.
 
 ## Features
 
@@ -13,24 +13,33 @@ Plugin use signal SIGALRM to break test.
    * opts: `--setup-timeout`, `--execution-timeout` and `--teardown-timeout`
    * ini: `setup_timeout`, `execution_timeout` and `teardown_timeout`
    * mark: `setup_timeout`, `execution_timeout` and `teardown_timeout`
-
-   Order of timeout: opts > markers > ini
-
+* fixed order of timeout settings: opts > markers > ini
 * timeout disabled when debugging with PDB
 
+## Installation
+
+```
+pip install git+https://github.com/Scony/pytest-timeouts.git
+```
+
 ## Usage
+
+### Commandline
 
 ```
 pytest --setup-timeout 2.5 --execution-timeout 2.01  --teardown-timeout 0
 ```
 
+### `pytest.ini` setting
+
 ```
-# pytest.ini
 [pytest]
 setup_timeout = 2.5
 execution-timeout = 2.01
 teardown-timeout = 0
 ```
+
+### Mark
 
 ```
 import time
@@ -44,8 +53,13 @@ import pytest
 def test_timeout():
     time.sleep(1)
 ```
+
+## Contributors
+
+* Pawel Lampe
+* Kamil Luczak
+
 ## TODO
 
-* handle exceptions
 * order controllable by opt
 * fixture markers(?)
