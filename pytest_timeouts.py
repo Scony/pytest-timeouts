@@ -85,7 +85,12 @@ class TimeoutsPlugin(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
-        self.setup_timer(self.setup_timeout)
+        marker_timeout = self.fetch_marker_timeout(item, 'setup_timeout')
+        if marker_timeout is not None:
+            timeout = marker_timeout
+        else:
+            timeout = self.setup_timeout
+        self.setup_timer(timeout)
         yield
         self.cancel_timer()
 
@@ -110,7 +115,12 @@ class TimeoutsPlugin(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):
-        self.setup_timer(self.teardown_timeout)
+        marker_timeout = self.fetch_marker_timeout(item, 'teardown_timeout')
+        if marker_timeout is not None:
+            timeout = marker_timeout
+        else:
+            timeout = self.teardown_timeout
+        self.setup_timer(timeout)
         yield
         self.cancel_timer()
 

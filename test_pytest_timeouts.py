@@ -72,6 +72,7 @@ def test_teardown_timeout(testdir):
         import pytest
         import time
 
+
         @pytest.fixture(scope='function')
         def fx():
             yield
@@ -92,9 +93,54 @@ def test_execucution_marker_timeout(testdir):
         import pytest
         import time
 
+
         @pytest.mark.execution_timeout(0.2)
         def test_dummy():
             time.sleep(1)
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        '*Failed: Timeout >0.2s*'
+    ])
+
+
+def test_setup_marker_timeout(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        @pytest.fixture(scope='function')
+        def fx():
+            time.sleep(1)
+            yield
+
+
+        @pytest.mark.setup_timeout(0.2)
+        def test_dummy(fx):
+            time.sleep(1)
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        '*Failed: Timeout >0.2s*'
+    ])
+
+
+def test_teardown_marker_timeout(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        @pytest.fixture(scope='function')
+        def fx():
+            yield
+            time.sleep(1)
+
+
+        @pytest.mark.teardown_timeout(0.2)
+        def test_dummy(fx):
+            pass
     """)
     result = testdir.runpytest()
     result.stdout.fnmatch_lines([
