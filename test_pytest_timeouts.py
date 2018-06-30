@@ -85,3 +85,18 @@ def test_teardown_timeout(testdir):
     result.stdout.fnmatch_lines([
         '*Failed: Timeout >1.5s*'
     ])
+
+
+def test_execucution_marker_timeout(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+        @pytest.mark.execution_timeout(1.5)
+        def test_dummy():
+            time.sleep(2)
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        '*Failed: Timeout >1.5s*'
+    ])

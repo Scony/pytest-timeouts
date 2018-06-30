@@ -48,21 +48,31 @@ class TimeoutsPlugin(object):
             'teardown_timeout', config)
 
     @staticmethod
-    def fetch_timeout_value(timeout_name, config):
-        def parse_timeout(timeout):
-            timeout = (
-                0.0 if (timeout is None) or (timeout == '')
-                else float(timeout)
-            )
-            timeout = 0.0 if timeout < 0.0 else timeout
-            return timeout
+    def parse_timeout(timeout):
+        timeout = (
+            0.0 if (timeout is None) or (timeout == '')
+            else float(timeout)
+        )
+        timeout = 0.0 if timeout < 0.0 else timeout
+        return timeout
 
+    @staticmethod
+    def fetch_timeout_value(timeout_name, config):
         timeout_option = config.getvalue(timeout_name)
         timeout_ini = config.getini(timeout_name)
         return (
-            parse_timeout(timeout_ini) if timeout_option is None
-            else parse_timeout(timeout_option)
+            TimeoutsPlugin.parse_timeout(timeout_ini) if timeout_option is None
+            else TimeoutsPlugin.parse_timeout(timeout_option)
         )
+
+    @staticmethod
+    def fetch_mark_timeout(item, timeout_name):
+        markers = [
+            mark.args[0] for mark in item.iter_markers(name=timeout_name)
+        ]
+        if len(markers) == 1:
+            return markers[0]
+        return None
 
     @pytest.hookimpl(tryfirst=True)
     def pytest_report_header(self, config):
@@ -85,7 +95,14 @@ class TimeoutsPlugin(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
-        self.setup_timer(self.call_timeout)
+        marker_timeout = TimeoutsPlugin.fetch_mark_timeout(
+            item,
+            'execution_timeout'
+        )
+        if marker_timeout is not None:
+            self.setup_timer(TimeoutsPlugin.parse_timeout(marker_timeout))
+        else:
+            self.setup_timer(self.call_timeout)
         yield
         self.cancel_timer()
 
