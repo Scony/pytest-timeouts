@@ -46,11 +46,14 @@ class TimeoutsPlugin(object):
             'execution_timeout(seconds): '
             'time out test case after specified time',
         )
-        self.setup_timeout = self.fetch_timeout_value('setup_timeout', config)
-        self.call_timeout = self.fetch_timeout_value(
-            'execution_timeout', config)
-        self.teardown_timeout = self.fetch_timeout_value(
-            'teardown_timeout', config)
+        self.timeout = {
+            'setup_timeout': self.fetch_timeout_from_config(
+                'setup_timeout', config),
+            'execution_timeout': self.fetch_timeout_from_config(
+                'execution_timeout', config),
+            'teardown_timeout': self.fetch_timeout_from_config(
+                'teardown_timeout', config),
+        }
 
     @staticmethod
     def parse_timeout(timeout):
@@ -62,20 +65,33 @@ class TimeoutsPlugin(object):
         return timeout
 
     @staticmethod
-    def fetch_timeout_value(timeout_name, config):
+    def fetch_timeout_from_config(timeout_name, config):
         timeout_option = config.getvalue(timeout_name)
         timeout_ini = config.getini(timeout_name)
-        return (
-            TimeoutsPlugin.parse_timeout(timeout_ini) if timeout_option is None
-            else TimeoutsPlugin.parse_timeout(timeout_option)
+        return timeout_option, timeout_ini
+
+    def fetch_timeout(self, timeout_name, item):
+        marker_timeout = (
+            self.fetch_marker_timeout(item, timeout_name) if item is not None
+            else None
         )
+        if self.timeout[timeout_name][0] is not None:
+            timeout = self.timeout[timeout_name][0]
+        elif marker_timeout is not None:
+            timeout = marker_timeout
+        else:
+            timeout = self.timeout[timeout_name][1]
+        return self.parse_timeout(timeout)
 
     @pytest.hookimpl(tryfirst=True)
     def pytest_report_header(self, config):
         timeout_prints = [
-            'setup timeout: %ss' % self.setup_timeout,
-            'execution timeout: %ss' % self.call_timeout,
-            'teardown timeout: %ss' % self.teardown_timeout,
+            'setup timeout: {}s'.format(
+                self.fetch_timeout('setup_timeout', None)),
+            'execution timeout: {}s'.format(
+                self.fetch_timeout('execution_timeout', None)),
+            'teardown timeout: {}s'.format(
+                self.fetch_timeout('teardown_timeout', None)),
         ]
         return [', '.join(timeout_prints)]
 
@@ -85,23 +101,13 @@ class TimeoutsPlugin(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
-        marker_timeout = self.fetch_marker_timeout(item, 'setup_timeout')
-        if marker_timeout is not None:
-            timeout = marker_timeout
-        else:
-            timeout = self.setup_timeout
-        self.setup_timer(timeout)
+        self.setup_timer(self.fetch_timeout('setup_timeout', item))
         yield
         self.cancel_timer()
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
-        marker_timeout = self.fetch_marker_timeout(item, 'execution_timeout')
-        if marker_timeout is not None:
-            timeout = marker_timeout
-        else:
-            timeout = self.call_timeout
-        self.setup_timer(timeout)
+        self.setup_timer(self.fetch_timeout('execution_timeout', item))
         yield
         self.cancel_timer()
 
@@ -115,12 +121,7 @@ class TimeoutsPlugin(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):
-        marker_timeout = self.fetch_marker_timeout(item, 'teardown_timeout')
-        if marker_timeout is not None:
-            timeout = marker_timeout
-        else:
-            timeout = self.teardown_timeout
-        self.setup_timer(timeout)
+        self.setup_timer(self.fetch_timeout('teardown_timeout', item))
         yield
         self.cancel_timer()
 
