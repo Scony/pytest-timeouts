@@ -53,20 +53,21 @@ class TimeoutsPlugin(object):
             'teardown_timeout', config)
 
     @staticmethod
-    def fetch_timeout_value(timeout_name, config):
-        def parse_timeout(timeout):
-            timeout = (
-                0.0 if (timeout is None) or (timeout == '')
-                else float(timeout)
-            )
-            timeout = 0.0 if timeout < 0.0 else timeout
-            return timeout
+    def parse_timeout(timeout):
+        timeout = (
+            0.0 if (timeout is None) or (timeout == '')
+            else float(timeout)
+        )
+        timeout = 0.0 if timeout < 0.0 else timeout
+        return timeout
 
+    @staticmethod
+    def fetch_timeout_value(timeout_name, config):
         timeout_option = config.getvalue(timeout_name)
         timeout_ini = config.getini(timeout_name)
         return (
-            parse_timeout(timeout_ini) if timeout_option is None
-            else parse_timeout(timeout_option)
+            TimeoutsPlugin.parse_timeout(timeout_ini) if timeout_option is None
+            else TimeoutsPlugin.parse_timeout(timeout_option)
         )
 
     @pytest.hookimpl(tryfirst=True)

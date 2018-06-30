@@ -8,9 +8,10 @@ This plugin has been designed for specific use cases which are out of the scope 
 
 ## Features
 
-* `setup`, `execution` and `teardown` phase timeouts controllable by ini settings: `setup_timeout`, `execution-timeout` and `teardown-timeout`
-* `setup`, `execution` and `teardown` phase timeouts controllable by opts: `--setup-timeout`, `--execution-timeout` and `--teardown-timeout`
-* `execution` phase timeout controllable by marker: `@pytest.mark.execution_timeout(seconds)`
+* `setup`, `execution` and `teardown` phase timeouts controllable by:
+   * opts: `--setup-timeout`, `--execution-timeout` and `--teardown-timeout`
+   * ini: `setup_timeout`, `execution_timeout` and `teardown_timeout`
+   * mark: `execution_timeout`
 * timeout disabled when debugging with PDB
 
 ## Usage
