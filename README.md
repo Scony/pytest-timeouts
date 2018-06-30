@@ -11,7 +11,7 @@ This plugin has been designed for specific use cases which are out of the scope 
 * `setup`, `execution` and `teardown` phase timeouts controllable by:
    * opts: `--setup-timeout`, `--execution-timeout` and `--teardown-timeout`
    * ini: `setup_timeout`, `execution_timeout` and `teardown_timeout`
-   * mark: `execution_timeout`
+   * mark: `setup_timeout`, `execution_timeout` and `teardown_timeout`
 * timeout disabled when debugging with PDB
 
 ## Usage
@@ -34,7 +34,9 @@ import time
 import pytest
 
 
+@pytest.mark.setup_timeout(0.3)
 @pytest.mark.execution_timeout(0.5)
+@pytest.mark.teardown_timeout(0.4)
 def test_timeout():
     time.sleep(1)
 ```
