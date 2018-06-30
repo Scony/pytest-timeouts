@@ -5,6 +5,10 @@ import signal
 
 import pytest
 
+SETUP_TIMEOUT_HELP = 'test case setup timeout in seconds'
+EXECUTION_TIMEOUT_HELP = 'test case execution timeout in seconds'
+TEARDOWN_TIMEOUT_HELP = 'test case teardown timeout in seconds'
+
 
 @pytest.hookimpl
 def pytest_addoption(parser):
@@ -12,18 +16,21 @@ def pytest_addoption(parser):
     group.addoption(
         '--setup-timeout',
         type=float,
-        help='test case setup timeout in seconds',
+        help=SETUP_TIMEOUT_HELP,
     )
     group.addoption(
         '--execution-timeout',
         type=float,
-        help='test case execution timeout in seconds',
+        help=EXECUTION_TIMEOUT_HELP,
     )
     group.addoption(
         '--teardown-timeout',
         type=float,
-        help='test case teardown timeout in seconds',
+        help=TEARDOWN_TIMEOUT_HELP,
     )
+    parser.addini('setup_timeout', SETUP_TIMEOUT_HELP)
+    parser.addini('execution_timeout', SETUP_TIMEOUT_HELP)
+    parser.addini('teardown_timeout', SETUP_TIMEOUT_HELP)
 
 
 @pytest.hookimpl
@@ -42,10 +49,20 @@ class TimeoutsPlugin(object):
 
     @staticmethod
     def fetch_timeout_value(timeout_name, config):
-        timeout = config.getvalue(timeout_name)
-        timeout = 0.0 if timeout is None else timeout
-        timeout = 0.0 if timeout < 0.0 else timeout
-        return timeout
+        def parse_timeout(timeout):
+            timeout = (
+                0.0 if (timeout is None) or (timeout == '')
+                else float(timeout)
+            )
+            timeout = 0.0 if timeout < 0.0 else timeout
+            return timeout
+
+        timeout_option = config.getvalue(timeout_name)
+        timeout_ini = config.getini(timeout_name)
+        return (
+            parse_timeout(timeout_ini) if timeout_option is None
+            else parse_timeout(timeout_option)
+        )
 
     @pytest.hookimpl(tryfirst=True)
     def pytest_report_header(self, config):
