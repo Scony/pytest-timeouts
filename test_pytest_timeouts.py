@@ -31,6 +31,22 @@ def test_ini_parse(testdir):
     ])
 
 
+def test_mark_parse(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        @pytest.mark.execution_timeout(0.5)
+        def test_dummy():
+            time.sleep(1)
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        '*Failed: Timeout >0.5s*'
+    ])
+
+
 def test_setup_timeout(testdir):
     testdir.makepyfile("""
         import pytest

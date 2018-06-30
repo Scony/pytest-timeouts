@@ -41,6 +41,11 @@ def pytest_configure(config):
 
 class TimeoutsPlugin(object):
     def __init__(self, config):
+        config.addinivalue_line(
+            'markers',
+            'execution_timeout(seconds): '
+            'time out test case after specified time',
+        )
         self.setup_timeout = self.fetch_timeout_value('setup_timeout', config)
         self.call_timeout = self.fetch_timeout_value(
             'execution_timeout', config)
@@ -85,9 +90,22 @@ class TimeoutsPlugin(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
-        self.setup_timer(self.call_timeout)
+        marker_timeout = self.fetch_marker_timeout(item, 'execution_timeout')
+        if marker_timeout is not None:
+            timeout = marker_timeout
+        else:
+            timeout = self.call_timeout
+        self.setup_timer(timeout)
         yield
         self.cancel_timer()
+
+    @staticmethod
+    def fetch_marker_timeout(item, name):
+        marker = item.get_closest_marker(name=name)
+        if marker is None:
+            return None
+        timeout = marker.args[0]
+        return timeout
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):
