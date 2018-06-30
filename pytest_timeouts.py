@@ -116,7 +116,9 @@ class TimeoutsPlugin(object):
         marker = item.get_closest_marker(name=name)
         if marker is None:
             return None
-        timeout = marker.args[0]
+        if not marker.args:
+            raise TypeError('Timeout value is missing')
+        timeout = float(marker.args[0])
         return timeout
 
     @pytest.hookimpl(hookwrapper=True)

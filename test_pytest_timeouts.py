@@ -191,3 +191,35 @@ def test_timeout_setting_order(testdir):
         '*Failed: Timeout >0.2s*',
         '*Failed: Timeout >0.1s*',
     ])
+
+
+def test_marker_value_missing(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        @pytest.mark.execution_timeout()
+        def test_dummy():
+            time.sleep(1)
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        '*TypeError:*'
+    ])
+
+
+def test_marker_value_invalid(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        @pytest.mark.execution_timeout('asdf')
+        def test_dummy():
+            time.sleep(1)
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        '*ValueError:*'
+    ])
