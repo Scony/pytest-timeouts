@@ -62,4 +62,3 @@ def test_timeout():
 ## TODO
 
 * order controllable by opt
-* fixture markers(?)
