@@ -193,6 +193,91 @@ def test_timeout_setting_order(testdir):
     ])
 
 
+def test_timeout_override_order(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        @pytest.fixture(scope='function')
+        def fx():
+            yield
+            time.sleep(1)
+
+
+        @pytest.fixture(scope='function')
+        def fx2():
+            time.sleep(1)
+            yield
+
+
+        @pytest.mark.teardown_timeout(0.2)
+        def test_dummy(fx):
+            pass
+
+
+        @pytest.mark.setup_timeout(0.4)
+        def test_dummy_2(fx2):
+            pass
+    """)
+    testdir.makeini("""
+        [pytest]
+        setup_timeout = 0.1
+    """)
+    result = testdir.runpytest(
+        '--setup-timeout=0.3',
+        '--teardown-timeout=0.3',
+        '--timeouts-order="imo"',
+    )
+    result.stdout.fnmatch_lines([
+        '*Failed: Timeout >0.2s*',
+        '*Failed: Timeout >0.1s*',
+    ])
+
+
+def test_disable_args_and_markers(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        @pytest.fixture(scope='function')
+        def fx():
+            yield
+            time.sleep(1)
+
+
+        @pytest.fixture(scope='function')
+        def fx2():
+            time.sleep(1)
+            yield
+
+
+        @pytest.mark.teardown_timeout(0.2)
+        def test_dummy(fx):
+            pass
+
+
+        @pytest.mark.setup_timeout(0.4)
+        def test_dummy_2(fx2):
+            pass
+    """)
+    testdir.makeini("""
+        [pytest]
+        setup_timeout = 0.1
+        teardown_timeout = 0.1
+    """)
+    result = testdir.runpytest(
+        '--setup-timeout=0.3',
+        '--teardown-timeout=0.3',
+        '--timeouts-order="i"',
+    )
+    result.stdout.fnmatch_lines([
+        '*Failed: Timeout >0.1s*',
+        '*Failed: Timeout >0.1s*',
+    ])
+
+
 def test_marker_value_missing(testdir):
     testdir.makepyfile("""
         import pytest

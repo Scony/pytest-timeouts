@@ -8,6 +8,9 @@ import pytest
 SETUP_TIMEOUT_HELP = 'test case setup timeout in seconds'
 EXECUTION_TIMEOUT_HELP = 'test case execution timeout in seconds'
 TEARDOWN_TIMEOUT_HELP = 'test case teardown timeout in seconds'
+TIMEOUT_ORDER_HELP = """override order: i - ini, m - mark, o - opt
+example: "omi", "imo", "i" - ini only
+"""
 
 
 @pytest.hookimpl
@@ -28,6 +31,12 @@ def pytest_addoption(parser):
         type=float,
         help=TEARDOWN_TIMEOUT_HELP,
     )
+    group.addoption(
+        '--timeouts-order',
+        type=str,
+        help=TIMEOUT_ORDER_HELP,
+        default='omi'
+    )
     parser.addini('setup_timeout', SETUP_TIMEOUT_HELP)
     parser.addini('execution_timeout', SETUP_TIMEOUT_HELP)
     parser.addini('teardown_timeout', SETUP_TIMEOUT_HELP)
@@ -44,8 +53,13 @@ class TimeoutsPlugin(object):
         config.addinivalue_line(
             'markers',
             'execution_timeout(seconds): '
-            'time out test case after specified time',
+            'time out test case after specified time\n'
+            'setup_timeout(seconds): '
+            'time out fixture setup after specific time\n'
+            'teardown_timeout(seconds):'
+            'time out fixture teardown after specific time\n'
         )
+        self.order = self.fetch_timeout_order(config)
         self.timeout = {
             'setup_timeout': self.fetch_timeout_from_config(
                 'setup_timeout', config),
@@ -70,17 +84,29 @@ class TimeoutsPlugin(object):
         timeout_ini = config.getini(timeout_name)
         return timeout_option, timeout_ini
 
+    @staticmethod
+    def fetch_timeout_order(config):
+        return config.getvalue('timeouts_order')
+
     def fetch_timeout(self, timeout_name, item):
         marker_timeout = (
             self.fetch_marker_timeout(item, timeout_name) if item is not None
             else None
         )
-        if self.timeout[timeout_name][0] is not None:
-            timeout = self.timeout[timeout_name][0]
-        elif marker_timeout is not None:
-            timeout = marker_timeout
-        else:
-            timeout = self.timeout[timeout_name][1]
+        timeout = None
+        for order_item in self.order:
+            if order_item == 'o' and self.timeout[timeout_name][0] is not None:
+                timeout = self.timeout[timeout_name][0]
+                break
+            elif order_item == 'm' and marker_timeout is not None:
+                timeout = marker_timeout
+                break
+            elif (order_item == 'i' and
+                  self.timeout[timeout_name][1] != ''):
+                timeout = self.timeout[timeout_name][1]
+                break
+            else:
+                TypeError('Incorrect order item type')
         return self.parse_timeout(timeout)
 
     @pytest.hookimpl(tryfirst=True)
