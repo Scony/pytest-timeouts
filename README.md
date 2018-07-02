@@ -59,7 +59,3 @@ def test_timeout():
 
 * Pawel Lampe
 * Kamil Luczak
-
-## TODO
-
-* fixture markers(?)
