@@ -113,13 +113,23 @@ class TimeoutsPlugin(object):
 
     @staticmethod
     def fetch_marker_timeout(item, name):
-        marker = item.get_closest_marker(name=name)
-        if marker is None:
-            return None
-        if not marker.args:
-            raise TypeError('Timeout value is missing')
-        timeout = float(marker.args[0])
-        return timeout
+        def get_fixture_scope(item):
+            return item._fixtureinfo.name2fixturedefs[
+                item._fixtureinfo.names_closure[0]][0].scope
+        markers = item.iter_markers(name=name)
+        if markers:
+            for marker in markers:
+                if marker.args:
+                    if len(marker.args) == 2:
+                        if marker.args[1] == get_fixture_scope(item):
+                            return marker.args[0]
+                        else:
+                            continue
+                    else:
+                        return marker.args[0]
+                else:
+                    raise TypeError('Timeout value is missing')
+        return None
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):

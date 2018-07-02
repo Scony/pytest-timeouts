@@ -197,8 +197,6 @@ def test_marker_value_missing(testdir):
     testdir.makepyfile("""
         import pytest
         import time
-
-
         @pytest.mark.execution_timeout()
         def test_dummy():
             time.sleep(1)
@@ -213,8 +211,6 @@ def test_marker_value_invalid(testdir):
     testdir.makepyfile("""
         import pytest
         import time
-
-
         @pytest.mark.execution_timeout('asdf')
         def test_dummy():
             time.sleep(1)
@@ -222,4 +218,64 @@ def test_marker_value_invalid(testdir):
     result = testdir.runpytest()
     result.stdout.fnmatch_lines([
         '*ValueError:*'
+    ])
+
+
+def test_timeout_scope_fixture(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+
+
+        pytestmark = [
+            pytest.mark.teardown_timeout(0.12, 'function'),
+            pytest.mark.teardown_timeout(0.14, 'module'),
+            pytest.mark.teardown_timeout(0.13),
+        ]
+
+
+        @pytest.fixture(scope='function')
+        def fx():
+            yield
+            time.sleep(1)
+
+
+        @pytest.fixture(scope='class')
+        def fx2():
+            yield
+            time.sleep(1)
+
+
+        @pytest.fixture(scope='module')
+        def fx3():
+            yield
+            time.sleep(1)
+
+
+        def test_dummy(fx):
+            pass
+
+
+        def test_dummy_2(fx2):
+            pass
+
+
+        @pytest.mark.teardown_timeout(0.11)
+        def test_dummy_4(fx):
+            pass
+
+
+        def test_dummy_3(fx3):
+            pass
+   """)
+    testdir.makeini("""
+        [pytest]
+        teardown_timeout = 0.15
+    """)
+    result = testdir.runpytest()
+    result.stdout.fnmatch_lines([
+        '*Failed: Timeout >0.12s*',
+        '*Failed: Timeout >0.13s*',
+        '*Failed: Timeout >0.11s*',
+        '*Failed: Timeout >0.14s*',
     ])
