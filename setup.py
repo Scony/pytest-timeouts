@@ -9,7 +9,7 @@ setup(
     url='https://github.com/Scony/pytest-timeouts',
     license='MIT',
     install_requires=[
-        'pytest',
+        'pytest>=3.1',
     ],
     py_modules=[
         'pytest_timeouts',
