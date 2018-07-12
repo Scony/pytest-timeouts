@@ -13,7 +13,7 @@ It uses a `SIGALRM` signal to schedule a timer which breaks the test case.
    * opts: `--setup-timeout`, `--execution-timeout` and `--teardown-timeout`
    * ini: `setup_timeout`, `execution_timeout` and `teardown_timeout`
    * mark: `setup_timeout`, `execution_timeout` and `teardown_timeout`
-* fixed order of timeout settings: `o`pts > `m`arkers > `i`ni, control by `--timeouts-order`
+* fixed order of timeout settings: **opts** > **markers** > **ini**, controlled by `--timeouts-order`
 * `--timeouts-order` allow change order of override timeout settings, and disable some settings, i.e. `--timeout-order i` disable markers and opts, any combination is allow
 * timeout disabled when debugging with PDB
 
