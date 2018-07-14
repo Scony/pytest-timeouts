@@ -1,6 +1,16 @@
-# pytest-timeouts [![Build Status](https://travis-ci.org/Scony/pytest-timeouts.svg?branch=master)](https://travis-ci.org/Scony/pytest-timeouts) [![Supported pytest>=3.1.3](https://img.shields.io/badge/pytest-3.1-green.svg)]()
+# pytest-timeouts
+[![Build Status](https://travis-ci.org/Scony/pytest-timeouts.svg?branch=master)](https://travis-ci.org/Scony/pytest-timeouts)
+[![Documentation Status](https://readthedocs.org/projects/pytest-timeouts/badge/?version=latest)](https://pytest-timeouts.readthedocs.io/en/latest/?badge=latest)
+![PyPI](https://img.shields.io/pypi/v/pytest-timeouts.svg)
+![PyPI - License](https://img.shields.io/pypi/l/pytest-timeouts.svg)
+![GitHub Release Date](https://img.shields.io/github/release-date/Scony/pytest-timeouts.svg)
+![Supported pytest>=3.1](https://img.shields.io/badge/pytest-3.1-green.svg)
 
 Linux-only Pytest plugin to control durations of various test case execution phases.
+
+## Documentation
+
+For documentation visit [pytest-timeouts.readthedocs.io](https://pytest-timeouts.readthedocs.io).
 
 ## About
 
@@ -19,7 +29,15 @@ It uses a `SIGALRM` signal to schedule a timer which breaks the test case.
 
 ## Installation
 
+### Stable
+
+```bash
+pip install pytest-timeouts
 ```
+
+### Master
+
+```bash
 pip install git+https://github.com/Scony/pytest-timeouts.git
 ```
 
@@ -27,13 +45,13 @@ pip install git+https://github.com/Scony/pytest-timeouts.git
 
 ### Commandline
 
-```
+```bash
 pytest --setup-timeout 2.5 --execution-timeout 2.01  --teardown-timeout 0
 ```
 
 ### `pytest.ini` setting
 
-```
+```ini
 [pytest]
 setup_timeout = 2.5
 execution-timeout = 2.01
@@ -42,7 +60,7 @@ teardown-timeout = 0
 
 ### Mark
 
-```
+```python
 import time
 
 import pytest
