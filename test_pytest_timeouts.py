@@ -104,7 +104,7 @@ def test_execucution_marker_timeout(testdir):
         def test_dummy():
             time.sleep(1)
     """)
-    result = testdir.runpytest()
+    result = testdir.runpytest('--strict')
     result.stdout.fnmatch_lines([
         '*Failed: Timeout >0.2s*'
     ])
@@ -126,7 +126,7 @@ def test_setup_marker_timeout(testdir):
         def test_dummy(fx):
             time.sleep(1)
     """)
-    result = testdir.runpytest()
+    result = testdir.runpytest('--strict')
     result.stdout.fnmatch_lines([
         '*Failed: Timeout >0.2s*'
     ])
@@ -148,7 +148,7 @@ def test_teardown_marker_timeout(testdir):
         def test_dummy(fx):
             pass
     """)
-    result = testdir.runpytest()
+    result = testdir.runpytest('--strict')
     result.stdout.fnmatch_lines([
         '*Failed: Timeout >0.2s*'
     ])

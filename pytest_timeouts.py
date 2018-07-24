@@ -68,8 +68,14 @@ class TimeoutsPlugin(object):
             'markers',
             'execution_timeout(seconds): '
             'time out test case after specified time\n'
+        )
+        config.addinivalue_line(
+            'markers',
             'setup_timeout(seconds): '
             'time out fixture setup after specific time\n'
+        )
+        config.addinivalue_line(
+            'markers',
             'teardown_timeout(seconds):'
             'time out fixture teardown after specific time\n'
         )
