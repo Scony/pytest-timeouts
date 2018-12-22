@@ -5,7 +5,7 @@ with open("README.md") as fd:
 
 setup(
     name='pytest-timeouts',
-    version='1.1.0',
+    version='1.1.1',
     description='Linux-only Pytest plugin to control durations of various test case execution phases',
     long_description=long_description,
     author='Pawel Lampe',
