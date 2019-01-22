@@ -43,7 +43,7 @@ pip install git+https://github.com/Scony/pytest-timeouts.git
 
 ## Usage
 
-### Commandline
+### Command line
 
 ```bash
 pytest --setup-timeout 2.5 --execution-timeout 2.01  --teardown-timeout 0
@@ -54,8 +54,8 @@ pytest --setup-timeout 2.5 --execution-timeout 2.01  --teardown-timeout 0
 ```ini
 [pytest]
 setup_timeout = 2.5
-execution-timeout = 2.01
-teardown-timeout = 0
+execution_timeout = 2.01
+teardown_timeout = 0
 ```
 
 ### Mark
