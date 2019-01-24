@@ -5,7 +5,7 @@ python:
   - '3.6'
 cache: pip
 install:
-  - pip install tox
+  - pip install tox codecov
 script:
   - tox
 deploy:
@@ -16,3 +16,5 @@ deploy:
   on:
     tags: true
     branch: master
+after_script:
+  - codecov
