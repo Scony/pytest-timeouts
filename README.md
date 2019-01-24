@@ -1,5 +1,6 @@
 # pytest-timeouts
 [![Build Status](https://travis-ci.org/Scony/pytest-timeouts.svg?branch=master)](https://travis-ci.org/Scony/pytest-timeouts)
+[![codecov](https://codecov.io/gh/Scony/pytest-timeouts/branch/master/graph/badge.svg)](https://codecov.io/gh/Scony/pytest-timeouts)
 [![Documentation Status](https://readthedocs.org/projects/pytest-timeouts/badge/?version=latest)](https://pytest-timeouts.readthedocs.io/en/latest/?badge=latest)
 ![PyPI](https://img.shields.io/pypi/v/pytest-timeouts.svg)
 ![PyPI - License](https://img.shields.io/pypi/l/pytest-timeouts.svg)
