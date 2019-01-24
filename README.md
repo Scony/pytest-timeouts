@@ -2,10 +2,12 @@
 [![Build Status](https://travis-ci.org/Scony/pytest-timeouts.svg?branch=master)](https://travis-ci.org/Scony/pytest-timeouts)
 [![codecov](https://codecov.io/gh/Scony/pytest-timeouts/branch/master/graph/badge.svg)](https://codecov.io/gh/Scony/pytest-timeouts)
 [![Documentation Status](https://readthedocs.org/projects/pytest-timeouts/badge/?version=latest)](https://pytest-timeouts.readthedocs.io/en/latest/?badge=latest)
-![PyPI](https://img.shields.io/pypi/v/pytest-timeouts.svg)
-![PyPI - License](https://img.shields.io/pypi/l/pytest-timeouts.svg)
+[![PyPI](https://img.shields.io/pypi/v/pytest-timeouts.svg)](https://pypi.org/project/pytest-timeouts/)
+[![PyPI - License](https://img.shields.io/pypi/l/pytest-timeouts.svg)](https://github.com/Scony/pytest-timeouts/blob/master/LICENSE)
+![pyversion](https://img.shields.io/pypi/pyversions/pytest-timeouts.svg)
+![pytest 3.1](https://img.shields.io/badge/pytest-3.1-blue.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/Scony/pytest-timeouts.svg)
-![Supported pytest>=3.1](https://img.shields.io/badge/pytest-3.1-green.svg)
+![](https://img.shields.io/pypi/dm/pytest-timeouts.svg)
 
 Linux-only Pytest plugin to control durations of various test case execution phases.
 
