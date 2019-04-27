@@ -106,7 +106,19 @@ class TimeoutsPlugin(object):
 
     @staticmethod
     def fetch_timeout_order(config):
-        return config.getvalue('timeouts_order')
+        order = list(config.getvalue('timeouts_order'))
+        order_set = set(['i', 'm', 'o'])
+        if len(order) == 0 or len(order) > 3:
+            raise pytest.UsageError(
+                'Order should have at least 1 and less then or '
+                'equal 3 elements'
+            )
+        if not set(order).issubset(order_set):
+            raise pytest.UsageError(
+                'Incorrect item \'{}\' in timeout order list'.format(
+                    list(set(order).difference(order_set)))
+            )
+        return order
 
     def fetch_timeout(self, timeout_name, item):
         marker_timeout = (
@@ -125,8 +137,6 @@ class TimeoutsPlugin(object):
                   self.timeout[timeout_name][1] != ''):
                 timeout = self.timeout[timeout_name][1]
                 break
-            else:
-                TypeError('Incorrect order item type')
         return self.parse_timeout(timeout)
 
     @pytest.hookimpl(tryfirst=True)
