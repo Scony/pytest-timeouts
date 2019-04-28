@@ -227,7 +227,7 @@ def test_timeout_override_order(testdir):
     result = testdir.runpytest(
         '--setup-timeout=0.3',
         '--teardown-timeout=0.3',
-        '--timeouts-order="imo"',
+        '--timeouts-order=imo',
     )
     result.stdout.fnmatch_lines([
         '*Failed: Timeout >0.2s*',
@@ -270,7 +270,7 @@ def test_disable_args_and_markers(testdir):
     result = testdir.runpytest(
         '--setup-timeout=0.3',
         '--teardown-timeout=0.3',
-        '--timeouts-order="i"',
+        '--timeouts-order=i',
     )
     result.stdout.fnmatch_lines([
         '*Failed: Timeout >0.1s*',
@@ -363,4 +363,49 @@ def test_timeout_scope_fixture(testdir):
         '*Failed: Timeout >0.13s*',
         '*Failed: Timeout >0.11s*',
         '*Failed: Timeout >0.14s*',
+    ])
+
+
+def test_empty_timeout_order_should_show_error_on_startup(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+        def test_dummy():
+            time.sleep(1)
+    """)
+    result = testdir.runpytest(
+        '--timeouts-order=',
+    )
+    result.stderr.fnmatch_lines([
+        'ERROR: Order should have at least 1 and less then or equal 3 elements'
+    ])
+
+
+def test_4_timeout_order_item_should_show_error_on_startup(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+        def test_dummy():
+            time.sleep(1)
+    """)
+    result = testdir.runpytest(
+        '--timeouts-order=imoi',
+    )
+    result.stderr.fnmatch_lines([
+        'ERROR: Order should have at least 1 and less then or equal 3 elements'
+    ])
+
+
+def test_incorrect_timeout_order_item_should_show_error_on_startup(testdir):
+    testdir.makepyfile("""
+        import pytest
+        import time
+        def test_dummy():
+            time.sleep(1)
+    """)
+    result = testdir.runpytest(
+        '--timeouts-order=xa',
+    )
+    result.stderr.fnmatch_lines([
+        'ERROR: Incorrect item * in timeout order list'
     ])
