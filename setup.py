@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    version='1.1.2',
+    version='1.2',
     install_requires=[
         'pytest>=3.1',
     ],
