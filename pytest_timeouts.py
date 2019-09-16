@@ -55,10 +55,7 @@ def pytest_addoption(parser):
 @pytest.hookimpl
 def pytest_configure(config):
     assert hasattr(signal, 'SIGALRM')
-    if pytest.__version__ >= '3.6':
-        TimeoutsPlugin.get_markers = get_markers_new_way
-    else:
-        TimeoutsPlugin.get_markers = get_markers_old_way
+    TimeoutsPlugin.configure()
     config.pluginmanager.register(TimeoutsPlugin(config))
 
 
@@ -97,6 +94,14 @@ class TimeoutsPlugin(object):
         )
         timeout = 0.0 if timeout < 0.0 else timeout
         return timeout
+
+    @staticmethod
+    def configure():
+        ver = [int(v) for v in pytest.__version__.split('.')]
+        if (ver[0] > 3) or ((ver[0] == 3) and (ver[1] >= 6)):
+            TimeoutsPlugin.get_markers = get_markers_new_way
+        else:
+            TimeoutsPlugin.get_markers = get_markers_old_way
 
     @staticmethod
     def fetch_timeout_from_config(timeout_name, config):
