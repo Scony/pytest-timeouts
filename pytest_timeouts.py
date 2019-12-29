@@ -13,16 +13,6 @@ example: "omi", "imo", "i" - ini only
 """
 
 
-@staticmethod
-def get_markers_old_way(item, name):
-    return item.get_marker(name=name)
-
-
-@staticmethod
-def get_markers_new_way(item, name):
-    return item.iter_markers(name=name)
-
-
 @pytest.hookimpl
 def pytest_addoption(parser):
     group = parser.getgroup('timeouts')
@@ -55,7 +45,6 @@ def pytest_addoption(parser):
 @pytest.hookimpl
 def pytest_configure(config):
     assert hasattr(signal, 'SIGALRM')
-    TimeoutsPlugin.configure()
     config.pluginmanager.register(TimeoutsPlugin(config))
 
 
@@ -94,14 +83,6 @@ class TimeoutsPlugin(object):
         )
         timeout = 0.0 if timeout < 0.0 else timeout
         return timeout
-
-    @staticmethod
-    def configure():
-        ver = [int(v) for v in pytest.__version__.split('.')]
-        if (ver[0] > 3) or ((ver[0] == 3) and (ver[1] >= 6)):
-            TimeoutsPlugin.get_markers = get_markers_new_way
-        else:
-            TimeoutsPlugin.get_markers = get_markers_old_way
 
     @staticmethod
     def fetch_timeout_from_config(timeout_name, config):
@@ -177,7 +158,7 @@ class TimeoutsPlugin(object):
         def get_fixture_scope(item):
             return item._fixtureinfo.name2fixturedefs[
                 item._fixtureinfo.names_closure[0]][0].scope
-        markers = TimeoutsPlugin.get_markers(item, name)
+        markers = item.iter_markers(name=name)
         if markers:
             for marker in markers:
                 if marker.args:
