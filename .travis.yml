@@ -17,7 +17,7 @@ jobs:
     - env: TOXENV=py3-codestyle
     - env: TOXENV=py3-coverage PYTEST_COVERAGE=1
       install:
-        - python -m pip install codecov
+      - python -m pip install --upgrade --pre tox codecov
 
     - env: TOXENV=py35
       python: '3.5'
