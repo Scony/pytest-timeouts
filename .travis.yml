@@ -1,23 +1,54 @@
-sudo: false
-dist: trusty
 language: python
-python:
-  - '3.5'
-  - '3.6'
-  - '3.7'
-  - '3.8-dev'
-cache: pip
+dist: xenial
+stages:
+- name: test
+  if: repo = Scony/pytest-timeouts AND tag IS NOT present
+- name: deploy
+  if: repo = Scony/pytest-timeouts AND tag IS present
+python: '3.7'
+cache: false
+os: linux
+
 install:
-  - pip install tox codecov
-script:
-  - tox
-deploy:
-  provider: pypi
-  user: Scony
-  password:
-    secure: zesc8Ly0VeisTE1gT50Wq8oesX/5h3qXz/G5Zqv35sy9Hwj1AKcyAEBJOZGk7l16jlGgJc/SLaAHrmDmY+9kU9KCKstWnqA0z8Ap7sTVRpxEdNHt7XayK5rmoAPpb137F8GX6+wJoRLmpc8/8gaq985vqVKcxya6aUlrscdHp6VXPgMki+78BDGpXJw58QI7E0f0sGcN94YYxOP+tFV/MAqfYDZM+Vxfol/Vv3H20ZiesKAgNIRXAsK/cXNj4PYbxC6Ck+RCMc4+J223kKw0VAbuqJVc1lUBq2zgUdyIk57/GMHPbxM6eETU/BPFH8Ca/yJA6oz+dm+nmmHgszmevxEHY7K0LJEQnTmNfvlQM2EjgEh/YYiRPsS+QrUYUIWqbIme8jQT0l+xkMtLPFUg3eYQ9w9sjmR6fz+yO3yGHapdcbHfUxp3uGN6Z7y2/54pTL8LrmoXD24e7k6kHDKazw4TZrDpGGL38XAoX00NzRA0MAYsPbyGkr/oPk0M6O0P+MA0i1TC0jdVQerZM7eKcLOwbsEViDhEtobH7pIbz07lWusDsVC/KUEvc46+ZJOLLcYvQtN1V2FeBvfqI/8Oa11SIaDwpi2aMXlCVPH/aCqfDiJQR6LeNDNtSyyiHTxH4wMlDy4kS5W0ZvtXuwQrJ9ecSdgqf1RC1mp/dhOc4NE=
-  on:
-    tags: true
-    branch: master
-after_script:
-  - codecov
+  - python -m pip install --upgrade --pre tox
+
+jobs:
+  include:
+    - env: TOXENV=py3-codestyle
+    - env: TOXENV=py3-coverage PYTEST_COVERAGE=1
+      install:
+        - python -m pip install codecov
+
+    - env: TOXENV=py35
+      python: '3.5'
+
+    - env: TOXENV=py36
+      python: '3.6'
+
+    - env: TOXENV=py37
+      python: '3.7'
+
+    - env: TOXENV=py38
+      python: '3.8'
+      
+    - stage: deploy
+      python: '3.6'
+      install: pip install -U setuptools setuptools_scm tox
+      script: skip
+      deploy:
+        provider: pypi
+        username: Scony
+        password:
+          secure: zesc8Ly0VeisTE1gT50Wq8oesX/5h3qXz/G5Zqv35sy9Hwj1AKcyAEBJOZGk7l16jlGgJc/SLaAHrmDmY+9kU9KCKstWnqA0z8Ap7sTVRpxEdNHt7XayK5rmoAPpb137F8GX6+wJoRLmpc8/8gaq985vqVKcxya6aUlrscdHp6VXPgMki+78BDGpXJw58QI7E0f0sGcN94YYxOP+tFV/MAqfYDZM+Vxfol/Vv3H20ZiesKAgNIRXAsK/cXNj4PYbxC6Ck+RCMc4+J223kKw0VAbuqJVc1lUBq2zgUdyIk57/GMHPbxM6eETU/BPFH8Ca/yJA6oz+dm+nmmHgszmevxEHY7K0LJEQnTmNfvlQM2EjgEh/YYiRPsS+QrUYUIWqbIme8jQT0l+xkMtLPFUg3eYQ9w9sjmR6fz+yO3yGHapdcbHfUxp3uGN6Z7y2/54pTL8LrmoXD24e7k6kHDKazw4TZrDpGGL38XAoX00NzRA0MAYsPbyGkr/oPk0M6O0P+MA0i1TC0jdVQerZM7eKcLOwbsEViDhEtobH7pIbz07lWusDsVC/KUEvc46+ZJOLLcYvQtN1V2FeBvfqI/8Oa11SIaDwpi2aMXlCVPH/aCqfDiJQR6LeNDNtSyyiHTxH4wMlDy4kS5W0ZvtXuwQrJ9ecSdgqf1RC1mp/dhOc4NE=
+        on:
+          tags: true
+          branch: master
+          repo: Scony/pytest-timeouts
+
+script: tox
+
+after_success:
+  - |
+    if [[ "$PYTEST_COVERAGE" = 1 ]]; then
+      codecov
+    fi
