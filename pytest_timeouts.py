@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import functools
 import signal
 
@@ -48,7 +46,7 @@ def pytest_configure(config):
     config.pluginmanager.register(TimeoutsPlugin(config))
 
 
-class TimeoutsPlugin(object):
+class TimeoutsPlugin():
     def __init__(self, config):
         config.addinivalue_line(
             'markers',
@@ -94,7 +92,7 @@ class TimeoutsPlugin(object):
     def fetch_timeout_order(config):
         order = list(config.getvalue('timeouts_order'))
         order_set = set(['i', 'm', 'o'])
-        if len(order) == 0 or len(order) > 3:
+        if not order or len(order) > 3:
             raise pytest.UsageError(
                 'Order should have at least 1 and less then or '
                 'equal 3 elements'
@@ -116,11 +114,10 @@ class TimeoutsPlugin(object):
             if order_item == 'o' and self.timeout[timeout_name][0] is not None:
                 timeout = self.timeout[timeout_name][0]
                 break
-            elif order_item == 'm' and marker_timeout is not None:
+            if order_item == 'm' and marker_timeout is not None:
                 timeout = marker_timeout
                 break
-            elif (order_item == 'i' and
-                  self.timeout[timeout_name][1] != ''):
+            if order_item == 'i' and self.timeout[timeout_name][1] != '':
                 timeout = self.timeout[timeout_name][1]
                 break
         return self.parse_timeout(timeout)
@@ -165,8 +162,6 @@ class TimeoutsPlugin(object):
                     if len(marker.args) == 2:
                         if marker.args[1] == get_fixture_scope(item):
                             return marker.args[0]
-                        else:
-                            continue
                     else:
                         return marker.args[0]
                 else:
