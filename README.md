@@ -4,7 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/pytest-timeouts/badge/?version=latest)](https://pytest-timeouts.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/pytest-timeouts.svg)](https://pypi.org/project/pytest-timeouts/)
 ![pyversion](https://img.shields.io/pypi/pyversions/pytest-timeouts.svg)
-![Supported pytest 3|4](https://img.shields.io/badge/pytest-3|4-blue.svg)
+![Supported pytest 5](https://img.shields.io/badge/pytest-5-blue.svg)
 [![Downloads](https://pepy.tech/badge/pytest-timeouts)](https://pepy.tech/project/pytest-timeouts)
 [![PyPI - License](https://img.shields.io/pypi/l/pytest-timeouts.svg)](https://github.com/Scony/pytest-timeouts/blob/master/LICENSE)
 ![GitHub Release Date](https://img.shields.io/github/release-date/Scony/pytest-timeouts.svg)

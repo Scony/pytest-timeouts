@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import functools
 import signal
 
@@ -11,16 +9,6 @@ TEARDOWN_TIMEOUT_HELP = 'test case teardown timeout in seconds'
 TIMEOUT_ORDER_HELP = """override order: i - ini, m - mark, o - opt
 example: "omi", "imo", "i" - ini only
 """
-
-
-@staticmethod
-def get_markers_old_way(item, name):
-    return item.get_marker(name=name)
-
-
-@staticmethod
-def get_markers_new_way(item, name):
-    return item.iter_markers(name=name)
 
 
 @pytest.hookimpl
@@ -55,11 +43,10 @@ def pytest_addoption(parser):
 @pytest.hookimpl
 def pytest_configure(config):
     assert hasattr(signal, 'SIGALRM')
-    TimeoutsPlugin.configure()
     config.pluginmanager.register(TimeoutsPlugin(config))
 
 
-class TimeoutsPlugin(object):
+class TimeoutsPlugin():
     def __init__(self, config):
         config.addinivalue_line(
             'markers',
@@ -96,14 +83,6 @@ class TimeoutsPlugin(object):
         return timeout
 
     @staticmethod
-    def configure():
-        ver = [int(v) for v in pytest.__version__.split('.')]
-        if (ver[0] > 3) or ((ver[0] == 3) and (ver[1] >= 6)):
-            TimeoutsPlugin.get_markers = get_markers_new_way
-        else:
-            TimeoutsPlugin.get_markers = get_markers_old_way
-
-    @staticmethod
     def fetch_timeout_from_config(timeout_name, config):
         timeout_option = config.getvalue(timeout_name)
         timeout_ini = config.getini(timeout_name)
@@ -113,7 +92,7 @@ class TimeoutsPlugin(object):
     def fetch_timeout_order(config):
         order = list(config.getvalue('timeouts_order'))
         order_set = set(['i', 'm', 'o'])
-        if len(order) == 0 or len(order) > 3:
+        if not order or len(order) > 3:
             raise pytest.UsageError(
                 'Order should have at least 1 and less then or '
                 'equal 3 elements'
@@ -135,11 +114,10 @@ class TimeoutsPlugin(object):
             if order_item == 'o' and self.timeout[timeout_name][0] is not None:
                 timeout = self.timeout[timeout_name][0]
                 break
-            elif order_item == 'm' and marker_timeout is not None:
+            if order_item == 'm' and marker_timeout is not None:
                 timeout = marker_timeout
                 break
-            elif (order_item == 'i' and
-                  self.timeout[timeout_name][1] != ''):
+            if order_item == 'i' and self.timeout[timeout_name][1] != '':
                 timeout = self.timeout[timeout_name][1]
                 break
         return self.parse_timeout(timeout)
@@ -177,15 +155,14 @@ class TimeoutsPlugin(object):
         def get_fixture_scope(item):
             return item._fixtureinfo.name2fixturedefs[
                 item._fixtureinfo.names_closure[0]][0].scope
-        markers = TimeoutsPlugin.get_markers(item, name)
+        markers = item.iter_markers(name=name)
         if markers:
             for marker in markers:
                 if marker.args:
                     if len(marker.args) == 2:
                         if marker.args[1] == get_fixture_scope(item):
                             return marker.args[0]
-                        else:
-                            continue
+                        continue  # TODO: Add ut or remove
                     else:
                         return marker.args[0]
                 else:
