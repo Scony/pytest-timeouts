@@ -162,6 +162,7 @@ class TimeoutsPlugin():
                     if len(marker.args) == 2:
                         if marker.args[1] == get_fixture_scope(item):
                             return marker.args[0]
+                        continue  # TODO: Add ut or remove
                     else:
                         return marker.args[0]
                 else:
